@@ -211,10 +211,10 @@ class Product extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    /*public function getProductsCategories()
+    public function getCategories()
     {
-        return $this->hasMany(ProductsCategories::className(), ['product_id' => 'id']);
-    }*/
+        return $this->hasMany(Category::className(), ['id' => 'category_id'])->viaTable('products_to_categories', ['product_id' => 'id']);
+    }
 
     /**
      * @return \yii\db\ActiveQuery

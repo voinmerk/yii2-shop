@@ -3,6 +3,7 @@
 namespace frontend\models;
 
 use Yii;
+use common\models\User;
 
 /**
  * This is the model class for table "{{%categories}}".
@@ -29,6 +30,8 @@ use Yii;
  */
 class Category extends \yii\db\ActiveRecord
 {
+    const STATUS_INACTIVE = 0;
+    const STATUS_ACTIVE = 1;
     /**
      * {@inheritdoc}
      */
@@ -48,8 +51,10 @@ class Category extends \yii\db\ActiveRecord
             [['description', 'meta_keywords', 'meta_description'], 'string'],
             [['title', 'image', 'meta_title', 'slug'], 'string', 'max' => 255],
             [['slug'], 'unique'],
-            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['created_by' => 'id']],
-            [['modified_by'], 'exist', 'skipOnError' => true, 'targetClass' => Users::className(), 'targetAttribute' => ['modified_by' => 'id']],
+            ['published', 'default', 'value' => self::STATUS_ACTIVE],
+            ['published', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE]],
+            [['created_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['created_by' => 'id']],
+            [['modified_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['modified_by' => 'id']],
         ];
     }
 
@@ -95,8 +100,16 @@ class Category extends \yii\db\ActiveRecord
 
     public static function getCategoryTree()
     {
-        $data = self::find()->select(['id', 'parent_id', 'title', 'slug', 'sort_order', 'meta_title'])->where(['published' => 1])->indexBy('id')->orderBy(['sort_order' => SORT_ASC])->asArray()->all();
+        $data = self::find()
+                    ->select(['id', 'parent_id', 'title', 'slug', 'sort_order', 'meta_title'])
+                    ->where(['published' => self::STATUS_ACTIVE])
+                    ->indexBy('id')
+                    ->orderBy(['sort_order' => SORT_ASC])
+                    ->asArray()
+                    ->all();
+
         $list = self::buildTree($data);
+
         return $list;
     }
 
@@ -105,7 +118,7 @@ class Category extends \yii\db\ActiveRecord
      */
     public function getCreatedBy()
     {
-        return $this->hasOne(\common\models\User::className(), ['id' => 'created_by']);
+        return $this->hasOne(User::className(), ['id' => 'created_by']);
     }
 
     /**
@@ -113,7 +126,15 @@ class Category extends \yii\db\ActiveRecord
      */
     public function getModifiedBy()
     {
-        return $this->hasOne(\common\models\User::className(), ['id' => 'modified_by']);
+        return $this->hasOne(User::className(), ['id' => 'modified_by']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProducts()
+    {
+        return $this->hasMany(Product::className(), ['id' => 'product_id'])->viaTable('products_to_categories', ['category_id' => 'id']);
     }
 
     /**
