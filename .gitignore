@@ -34,3 +34,9 @@ phpunit.phar
 
 # vagrant runtime
 /.vagrant
+
+# composer lock file
+composer.lock
+
+# какая то лажа, похоже на NPM
+/components

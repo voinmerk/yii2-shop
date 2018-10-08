@@ -14,6 +14,10 @@ use yii\web\Controller;
 use yii\helpers\Url;
 use yii\helpers\Json;
 
+// Frontend
+use frontend\models\Category;
+use frontend\models\Product;
+
 /**
  * Class ProductController
  *
@@ -32,13 +36,13 @@ class ProductController extends Controller
 
         $data = [];
 
-        $data['categories'] = \frontend\models\Category::getCategoryTree();
+        $data['categories'] = Category::getCategoryTree();
 
-        $products = \frontend\models\Product::getProductsAll();
+        $products = Product::getProductsAll();
 
         if($products != false)
             $data['products'] = $products;
-        
+
         return $this->render('index', $data);
     }
 
@@ -49,11 +53,15 @@ class ProductController extends Controller
     {
         $data = [];
 
-        $data['categories'] = \frontend\models\Category::getCategoryTree();
+        $modelCategory = Category::findOne(['slug' => $category]);
 
-        if($category) {
-            $data['category'] = \frontend\models\Category::findOne(['slug' => $category]);
+        if(!$modelCategory) {
+            throw new BadRequestHttpException(Yii::t('frontend', 'This category does not exist!'));
         }
+
+        $data['category'] = $modelCategory;
+        $data['categories'] = Category::getCategoryTree();
+        $data['products'] = Category::find()->where(['slug' => $category])->with('products')->one()->products;
 
         return $this->render('index', $data);
     }
@@ -63,15 +71,23 @@ class ProductController extends Controller
      *
      * @return mixed
      */
-    public function actionView($product)
+    public function actionView($category, $product)
     {
-        //$request = Yii::$app->request;
-
-        // if(!$request->get('slug')) return $this->redirect('product/index');
-
         $data = [];
 
-        $data['product'] = \frontend\models\Product::getProductById($product);
+        $modelCategory = Category::findOne(['published' => ]);
+        $modelProduct = Product::getProductById($product);
+
+        if(!$modelCategory) {
+            throw new BadRequestHttpException(Yii::t('frontend', 'This category does not exist!'));
+        }
+
+        if(!$modelProduct) {
+            throw new BadRequestHttpException(Yii::t('frontend', 'This product does not exist!'));
+        }
+
+        $data['category'] = $modelCategory;
+        $data['product'] = $modelProduct;
 
         return $this->render('view', $data);
     }
