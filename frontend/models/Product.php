@@ -45,6 +45,8 @@ use yii\helpers\Url;
  */
 class Product extends \yii\db\ActiveRecord
 {
+    const PRODUCTS_PER_PAGE = 20; // Максимальное количство товаров выводимое на одну страницу
+
     /**
      * {@inheritdoc}
      */
@@ -106,7 +108,7 @@ class Product extends \yii\db\ActiveRecord
     public static function getProductsAll()
     {
         $query = self::find()->select(['id', 'title', 'description', 'slug', 'image', 'price', 'marker'])->where(['published' => 1])->orderBy(['sort_order' => SORT_ASC, 'created_at' => SORT_DESC]);
-        $pages = new \yii\data\Pagination(['totalCount' => $query->count(), 'pageSize' => 10]);
+        $pages = new \yii\data\Pagination(['totalCount' => $query->count(), 'pageSize' => self::PRODUCTS_PER_PAGE]);
         $products = $query->offset($pages->offset)->limit($pages->limit)->all();
 
         if(count($products)) {

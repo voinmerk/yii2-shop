@@ -102,8 +102,8 @@ return [
 */
                 'catalog/add/<id:[\w_-]+>' => 'product/cart',
                 'catalog/<action:like>' => 'product/<action>',
-                'catalog/<category:[\w_-]+>/<product:[\w_-]+>' => 'product/view',
-                'catalog/<category:[\w_-]+>' => 'product/category',
+                'catalog/<category:[\w_\/-]+>/<product:[\w_-]+>' => 'product/view',
+                'catalog/<category:[\w_\/-]+>' => 'product/category',
                 //'catalog/<product:[\w_-]+>' => 'product/view',
                 'catalog' => 'product/index',
 
