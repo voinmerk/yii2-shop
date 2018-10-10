@@ -75,7 +75,7 @@ class ProductController extends Controller
     {
         $data = [];
 
-        $modelCategory = Category::findOne(['published' => ]);
+        $modelCategory = Category::findOne(['published' => Category::STATUS_ACTIVE]);
         $modelProduct = Product::getProductById($product);
 
         if(!$modelCategory) {
